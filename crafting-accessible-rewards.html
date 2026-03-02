@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crafting Accessible Rewards — Pitch Deck</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+
+/* ===========================================
+   CSS CUSTOM PROPERTIES — SPLIT PASTEL THEME
+   Change these variables to restyle the whole deck.
+   =========================================== */
+:root {
+  /* Core palette — Split Pastel */
+  --peach:        #f5e6dc;
+  --lavender:     #e4dff0;
+  --card-white:   #fdfcfb;
+  --dark:         #1a1a2e;
+  --plum:         #2d1b5e;
+  --mid:          #5a4080;
+  --light-mid:    #8b7fa8;
+
+  /* Accent pill colours */
+  --mint:         #c8f0d8;
+  --yellow:       #f0f0c8;
+  --pink:         #f0d4e0;
+  --sky:          #c8e4f8;
+  --lav-pill:     #d8d0f0;
+
+  /* Typography — Outfit for everything */
+  --font:         'Outfit', sans-serif;
+  --title-size:   clamp(1.8rem, 4.5vw, 4rem);
+  --h2-size:      clamp(1.2rem, 2.6vw, 2rem);
+  --body-size:    clamp(0.72rem, 1.25vw, 0.92rem);
+  --small-size:   clamp(0.58rem, 0.88vw, 0.7rem);
+  --label-size:   clamp(0.52rem, 0.8vw, 0.64rem);
+
+  /* Spacing */
+  --pad:          clamp(1.5rem, 4vw, 3.5rem);
+  --gap:          clamp(0.55rem, 1.2vw, 1rem);
+  --gap-sm:       clamp(0.3rem, 0.7vw, 0.55rem);
+}
+
+/* ===========================================
+   RESET + BASE
+   =========================================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font);
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* ===========================================
+   SLIDE BASE — VIEWPORT FITTING (NON-NEGOTIABLE)
+   Every slide = exactly one viewport height.
+   overflow:hidden prevents ANY content from spilling.
+   =========================================== */
+.slide {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;     /* Dynamic viewport height — mobile safe */
+  overflow: hidden;   /* CRITICAL: block any overflow */
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ===========================================
+   PROGRESS BAR
+   =========================================== */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: #7c5cbf;
+  z-index: 200;
+  transition: width 0.4s ease;
+  width: 0;
+}
+
+/* ===========================================
+   DOT NAVIGATION
+   =========================================== */
+.nav-dots {
+  position: fixed;
+  right: clamp(0.6rem, 1.5vw, 1.2rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.35rem, 0.7vh, 0.6rem);
+  z-index: 200;
+}
+
+.nav-dot {
+  width: clamp(5px, 0.55vw, 7px);
+  height: clamp(5px, 0.55vw, 7px);
+  border-radius: 50%;
+  background: rgba(45, 27, 94, 0.2);
+  border: 1.5px solid rgba(45, 27, 94, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.nav-dot.active {
+  background: #7c5cbf;
+  border-color: #7c5cbf;
+  transform: scale(1.35);
+}
+
+/* Dots on dark slide (slide 7) */
+.dark-dots .nav-dot {
+  background: rgba(196, 181, 253, 0.2);
+  border-color: rgba(196, 181, 253, 0.3);
+}
+.dark-dots .nav-dot.active {
+  background: #c4b5fd;
+  border-color: #c4b5fd;
+}
+
+/* ===========================================
+   SLIDE COUNTER  (bottom-left corner)
+   =========================================== */
+.slide-counter {
+  position: absolute;
+  bottom: clamp(0.75rem, 1.8vw, 1.3rem);
+  left: clamp(1rem, 2.5vw, 2rem);
+  font-size: var(--small-size);
+  color: rgba(45, 27, 94, 0.35);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+/* ===========================================
+   ANIMATIONS
+   .reveal = fade + slide up on .visible parent
+   .reveal-right = fade + slide left
+   =========================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide.visible .reveal        { opacity: 1; transform: translateY(0); }
+.slide.visible .reveal.d1     { transition-delay: 0.05s; }
+.slide.visible .reveal.d2     { transition-delay: 0.18s; }
+.slide.visible .reveal.d3     { transition-delay: 0.30s; }
+.slide.visible .reveal.d4     { transition-delay: 0.42s; }
+.slide.visible .reveal.d5     { transition-delay: 0.54s; }
+.slide.visible .reveal.d6     { transition-delay: 0.66s; }
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(22px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.22s,
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.22s;
+}
+
+.slide.visible .reveal-right { opacity: 1; transform: translateX(0); }
+
+/* ===========================================
+   SHARED COMPONENTS
+   =========================================== */
+
+/* Section badge / eyebrow label */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  background: var(--lav-pill);
+  color: var(--plum);
+  font-size: var(--label-size);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35em 0.9em;
+  border-radius: 999px;
+}
+
+/* Bullet row with pill icon */
+.pill-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6em;
+  font-size: var(--body-size);
+  color: var(--plum);
+  line-height: 1.45;
+}
+
+.pill-icon {
+  flex-shrink: 0;
+  width: clamp(18px, 2.2vw, 26px);
+  height: clamp(18px, 2.2vw, 26px);
+  background: var(--mint);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+  margin-top: 0.1em;
+}
+
+/* Prompt card (styled like a chat/terminal input) */
+.prompt-card {
+  background: rgba(45, 27, 94, 0.055);
+  border: 1px solid rgba(124, 92, 191, 0.18);
+  border-left: 3px solid #7c5cbf;
+  border-radius: 6px;
+  padding: clamp(0.55rem, 1.1vw, 0.95rem) clamp(0.7rem, 1.3vw, 1.1rem);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.prompt-label {
+  font-size: var(--label-size);
+  font-weight: 700;
+  color: #7c5cbf;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.3em;
+}
+
+.prompt-text {
+  font-size: clamp(0.72rem, 1.1vw, 0.88rem);
+  color: var(--mid);
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Image styles */
+.slide-img {
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Trophy images — small square pixel art */
+.trophy-sm {
+  max-height: min(26vh, 190px);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 2px 14px rgba(90, 64, 128, 0.12);
+}
+
+/* Screenshot — landscape, framed */
+.screenshot-img {
+  max-height: min(38vh, 270px);
+  border: 1px solid rgba(124, 92, 191, 0.15);
+  box-shadow: 0 4px 20px rgba(90, 64, 128, 0.1);
+  border-radius: 10px;
+}
+
+/* Hero — large final image */
+.hero-img {
+  max-height: min(58vh, 420px);
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(124, 92, 191, 0.3);
+}
+
+/* Image caption */
+.img-caption {
+  font-size: var(--small-size);
+  color: var(--light-mid);
+  text-align: center;
+  font-style: italic;
+  margin-top: 0.3em;
+  font-weight: 500;
+}
+
+/* Two images side by side */
+.img-pair {
+  display: flex;
+  gap: var(--gap-sm);
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Grid background overlay for right panels */
+.grid-bg {
+  position: relative;
+}
+
+.grid-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124, 92, 191, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 92, 191, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ===========================================
+   RESPONSIVE BREAKPOINTS — HEIGHT-BASED
+   These are critical for viewport fitting on
+   small/landscape screens.
+   =========================================== */
+
+/* Short screens < 700px height */
+@media (max-height: 700px) {
+  :root {
+    --pad: clamp(1rem, 3vw, 2.2rem);
+    --gap: clamp(0.4rem, 1vw, 0.7rem);
+    --title-size: clamp(1.5rem, 4vw, 2.8rem);
+    --h2-size: clamp(1.1rem, 2.5vw, 1.65rem);
+    --body-size: clamp(0.65rem, 1.1vw, 0.82rem);
+  }
+}
+
+/* Very short < 600px */
+@media (max-height: 600px) {
+  :root {
+    --pad: clamp(0.75rem, 2.5vw, 1.6rem);
+    --gap: clamp(0.3rem, 0.8vw, 0.52rem);
+    --gap-sm: clamp(0.2rem, 0.5vw, 0.38rem);
+    --title-size: clamp(1.2rem, 3.5vw, 2rem);
+    --body-size: clamp(0.58rem, 1vw, 0.75rem);
+  }
+  .nav-dots { display: none; }
+}
+
+/* Landscape phones < 500px */
+@media (max-height: 500px) {
+  :root {
+    --pad: clamp(0.5rem, 2vw, 1rem);
+    --title-size: clamp(1rem, 3vw, 1.6rem);
+    --h2-size: clamp(0.9rem, 2.2vw, 1.3rem);
+  }
+}
+
+/* Narrow < 600px width */
+@media (max-width: 600px) {
+  :root { --title-size: clamp(1.5rem, 7vw, 2.8rem); }
+  .split-row { flex-direction: column !important; }
+  .split-row > * { width: 100% !important; }
+  .bring-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.2s !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   SLIDE 1 — TITLE
+   Classic Split Pastel: peach left / lavender right
+   =========================================== */
+#slide-1 {
+  flex-direction: row;
+}
+
+.s1-left {
+  width: 48%;
+  background: var(--peach);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--pad);
+  position: relative;
+  z-index: 1;
+}
+
+.s1-right {
+  flex: 1;
+  background: var(--lavender);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--pad);
+  position: relative;
+  overflow: hidden;
+}
+
+.main-title {
+  font-size: var(--title-size);
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--gap);
+}
+
+.title-divider {
+  width: clamp(36px, 5vw, 56px);
+  height: 3px;
+  background: #7c5cbf;
+  border-radius: 2px;
+  margin-bottom: var(--gap);
+}
+
+.title-sub {
+  font-size: var(--body-size);
+  color: var(--mid);
+  line-height: 1.6;
+}
+
+.title-pills {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  position: relative;
+  z-index: 1;
+}
+
+.title-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65em;
+  padding: 0.55em 1.1em;
+  border-radius: 999px;
+  font-size: var(--body-size);
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* ===========================================
+   SLIDE 1 — BRIEF DASHBOARD (embedded in title slide)
+   Compact 2×2 grid of constraint chips in the right panel
+   =========================================== */
+.brief-dash {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  width: 100%;
+}
+
+.brief-dash-label {
+  font-size: clamp(0.65rem, 1.1vw, 0.82rem);
+  font-weight: 700;
+  color: var(--mid);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.brief-dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-sm);
+}
+
+.brief-dash-item {
+  display: flex;
+  gap: 0.6em;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.52);
+  border-radius: 10px;
+  padding: clamp(0.7rem, 1.3vw, 1.1rem);
+  border: 1px solid rgba(124, 92, 191, 0.1);
+}
+
+.brief-dash-icon {
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  flex-shrink: 0;
+  margin-top: 0.05em;
+}
+
+.brief-dash-item strong {
+  display: block;
+  font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+  font-weight: 700;
+  color: var(--plum);
+  margin-bottom: 0.2em;
+}
+
+.brief-dash-item span {
+  font-size: clamp(0.62rem, 0.95vw, 0.75rem);
+  color: var(--mid);
+  line-height: 1.5;
+}
+
+/* ===========================================
+   SLIDE 3 — PHASE 1: GENERATIVE CODE
+   Peach left (content) / white right (image)
+   =========================================== */
+#slide-3 {
+  flex-direction: row;
+}
+
+.s3-content {
+  flex: 1;
+  background: var(--peach);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--pad);
+  gap: var(--gap-sm);
+  overflow: hidden;
+}
+
+.s3-content h2 {
+  font-size: var(--h2-size);
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.2;
+  margin: var(--gap-sm) 0;
+}
+
+.bullet-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  overflow: hidden;
+}
+
+.s3-image {
+  width: 38%;
+  background: #fff;
+  border-left: 1px solid rgba(124, 92, 191, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--pad);
+  gap: var(--gap-sm);
+  overflow: hidden;
+}
+
+/* ===========================================
+   SLIDES 4 & 5 — PHASE 2 (two slides)
+   Phase header + two-column body
+   =========================================== */
+.phase-slide {
+  padding: var(--pad);
+  gap: var(--gap);
+}
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  flex-shrink: 0;
+}
+
+.phase-header h2 {
+  font-size: var(--h2-size);
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.phase-body {
+  flex: 1;
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  min-height: 0;      /* critical for flex overflow */
+  overflow: hidden;
+}
+
+.phase-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.phase-right {
+  width: clamp(190px, 36%, 360px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Full-screen phase layout: prompts fill left, images stack right */
+.phase-prompts {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.phase-images {
+  width: clamp(160px, 26%, 280px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Trophy images — medium size (larger than trophy-sm) */
+.trophy-md {
+  max-height: min(34vh, 240px);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 2px 14px rgba(90, 64, 128, 0.12);
+}
+
+#slide-4 { background: var(--lavender); }
+#slide-5 { background: var(--peach); }
+
+/* ===========================================
+   SLIDE 6 — PHASE 3: THE FINAL POLISH
+   Lavender left (content) / white right (screenshot)
+   =========================================== */
+#slide-6 {
+  flex-direction: row;
+}
+
+.s6-content {
+  flex: 1;
+  background: var(--lavender);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--pad);
+  gap: var(--gap-sm);
+  overflow: hidden;
+}
+
+.s6-content h2 {
+  font-size: var(--h2-size);
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.2;
+  margin: var(--gap-sm) 0;
+}
+
+.s6-image {
+  width: 42%;
+  background: #fff;
+  border-left: 1px solid rgba(124, 92, 191, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--pad);
+  gap: var(--gap-sm);
+  overflow: hidden;
+}
+
+/* ===========================================
+   SLIDE 7 — THE FINAL OUTPUT
+   Dark cosmic bg, hero image centred
+   =========================================== */
+#slide-7 {
+  background: #1a0f2e;
+  justify-content: center;
+  align-items: center;
+  padding: var(--pad);
+  gap: var(--gap);
+  overflow: hidden;
+}
+
+/* Soft glow blobs matching trophy palette */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(75px);
+  pointer-events: none;
+}
+
+.blob-1 {
+  width: clamp(180px, 30vw, 400px);
+  height: clamp(180px, 30vw, 400px);
+  background: rgba(196, 181, 253, 0.18);
+  top: -8%; right: 2%;
+}
+
+.blob-2 {
+  width: clamp(130px, 22vw, 280px);
+  height: clamp(130px, 22vw, 280px);
+  background: rgba(255, 203, 71, 0.1);
+  bottom: 4%; left: 8%;
+}
+
+.final-eyebrow {
+  font-size: var(--label-size);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(196, 181, 253, 0.7);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.final-heading {
+  font-size: var(--h2-size);
+  font-weight: 800;
+  color: #f0eaff;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+#slide-7 .slide-counter { color: rgba(240, 230, 255, 0.25); }
+
+/* ===========================================
+   SLIDE 7 — WHAT CAN I BRING (final slide)
+   Dark, striking — split layout with gold CTA
+   =========================================== */
+#slide-8 {
+  background: #0f0c1d;
+  flex-direction: row;
+}
+
+/* Left panel: bold headline + CTA */
+.s8-left {
+  width: 38%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--pad);
+  gap: var(--gap);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle vertical separator */
+.s8-left::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 10%; height: 80%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(196,181,253,0.25), transparent);
+}
+
+.s8-eyebrow {
+  font-size: var(--label-size);
+  font-weight: 700;
+  color: rgba(196,181,253,0.6);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.s8-title {
+  font-size: clamp(1.8rem, 4.5vw, 4rem);
+  font-weight: 800;
+  color: #f0eaff;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+}
+
+.s8-title .gold { color: #FFCB47; }
+
+.s8-sub {
+  font-size: var(--small-size);
+  color: rgba(196,181,253,0.45);
+  line-height: 1.55;
+}
+
+/* Gold CTA button with warm glow */
+.portfolio-link-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: #FFCB47;
+  color: #1a0f2e;
+  text-decoration: none;
+  font-size: var(--body-size);
+  font-weight: 700;
+  padding: 0.7em 1.6em;
+  border-radius: 999px;
+  align-self: flex-start;
+  box-shadow: 0 0 22px rgba(255,203,71,0.28);
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.portfolio-link-dark:hover {
+  box-shadow: 0 0 36px rgba(255,203,71,0.45);
+  transform: translateY(-2px);
+}
+
+/* Decorative blobs behind left panel text */
+.s8-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Right panel: 2×2 skill cards */
+.s8-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--pad);
+  gap: var(--gap);
+  overflow: hidden;
+}
+
+.bring-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Glass-style cards on dark */
+.bring-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(196,181,253,0.14);
+  border-radius: 14px;
+  padding: clamp(0.9rem, 1.8vw, 1.4rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Coloured top accent bar per card — driven by --accent CSS variable */
+.bring-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 14px 14px 0 0;
+  background: var(--accent, rgba(196,181,253,0.4));
+}
+
+.bring-icon { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+
+.bring-item strong {
+  font-size: clamp(0.8rem, 1.4vw, 1.05rem);
+  font-weight: 700;
+  color: #f0eaff;
+}
+
+.bring-item span {
+  font-size: clamp(0.68rem, 1.1vw, 0.85rem);
+  color: rgba(196,181,253,0.6);
+  line-height: 1.55;
+}
+
+.portfolio-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: #7c5cbf;
+  color: #fff;
+  text-decoration: none;
+  font-size: var(--body-size);
+  font-weight: 600;
+  padding: 0.65em 1.5em;
+  border-radius: 999px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.portfolio-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 18px rgba(124, 92, 191, 0.35);
+}
+
+  </style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Dot navigation -->
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+
+<!-- ==========================================
+     SLIDE 1 — TITLE
+     ========================================== -->
+<section class="slide" id="slide-1" data-slide="1">
+
+  <div class="s1-left">
+    <div class="badge reveal d1">✦ Pitch Deck · 2025</div>
+    <h1 class="main-title reveal d2">Crafting<br>Accessible<br>Rewards</h1>
+    <div class="title-divider reveal d3"></div>
+    <p class="title-sub reveal d4">Prompt Engineering for<br>Dyslexic Readers · Ages 5–7</p>
+  </div>
+
+  <div class="s1-right grid-bg">
+    <div class="brief-dash">
+      <div class="brief-dash-label reveal d2">📋 Context &amp; Constraints</div>
+      <div class="brief-dash-grid">
+        <div class="brief-dash-item reveal d3">
+          <span class="brief-dash-icon">🎯</span>
+          <div>
+            <strong>Target Audience</strong>
+            <span>KS1 children (ages 5–7) · Dyslexia assistive app</span>
+          </div>
+        </div>
+        <div class="brief-dash-item reveal d4">
+          <span class="brief-dash-icon">💪</span>
+          <div>
+            <strong>Core Message</strong>
+            <span>Effort &amp; Progress — not just "Winning"</span>
+          </div>
+        </div>
+        <div class="brief-dash-item reveal d5">
+          <span class="brief-dash-icon">🎨</span>
+          <div>
+            <strong>Colour Rules</strong>
+            <span>Low visual stress · No red-green contrasts</span>
+          </div>
+        </div>
+        <div class="brief-dash-item reveal d6">
+          <span class="brief-dash-icon">⚙️</span>
+          <div>
+            <strong>Technical</strong>
+            <span>No text · SVG micro-scalable (32×32pt)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-counter">01 / 07</div>
+</section>
+
+
+<!-- ==========================================
+     SLIDE 2 — PHASE 1: GENERATIVE CODE
+     ========================================== -->
+<section class="slide" id="slide-3" data-slide="3">
+
+  <div class="s3-content">
+    <div class="badge reveal d1">🤖 Phase 1</div>
+    <h2 class="reveal d2">Generative Code<br>(LLM)</h2>
+    <div class="bullet-list">
+      <div class="pill-item reveal d3">
+        <div class="pill-icon">🎯</div>
+        <span><strong>Objective:</strong> Test if an LLM could generate a mathematically clean SVG using raw code.</span>
+      </div>
+      <div class="pill-item reveal d3">
+        <div class="pill-icon">⚡</div>
+        <span><strong>Action:</strong> Used meta-prompting to generate minimalist concepts like seedlings and rockets.</span>
+      </div>
+      <div class="pill-item reveal d4">
+        <div class="pill-icon">📊</div>
+        <span><strong>Result:</strong> Models respected constraints but visual output was underwhelming — lacked detail.</span>
+      </div>
+      <div class="pill-item reveal d4">
+        <div class="pill-icon">🔄</div>
+        <span><strong>Decision:</strong> Needed a different approach for better visual fidelity.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="s3-image reveal-right">
+    <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/1.png" alt="LLM-generated seedling SVG icon" class="slide-img"
+         style="max-height:min(48vh,340px);">
+    <p class="img-caption">LLM output — constraint-compliant but visually flat</p>
+  </div>
+
+  <div class="slide-counter">02 / 07</div>
+</section>
+
+
+<!-- ==========================================
+     SLIDE 3 — PHASE 2A: ITERATIONS 1 & 2
+     ========================================== -->
+<section class="slide phase-slide" id="slide-4" data-slide="4">
+
+  <div class="phase-header reveal d1">
+    <div class="badge">🎮 Phase 2A</div>
+    <h2>Switched to Midjourney — More Descriptive Prompting</h2>
+  </div>
+
+  <div class="phase-body">
+
+    <div class="phase-prompts">
+      <div class="prompt-card reveal d2">
+        <div class="prompt-label">✦ Prompt 1 — Initial Concept</div>
+        <p class="prompt-text">A clean, scalable vector pixel art icon of a small, friendly-looking trophy, rendered in a classic 8-bit or 16-bit gaming and anime mosaic style. Flat design, minimalist complexity. The trophy has a rounded, cheerful pixel <strong>star shape</strong> at its peak representing effort and rising skill. Color palette: soft blues, warm yellows, lavender, soft cyan. <strong>Strictly NO RED and NO GREEN.</strong> Flanked by two simple pixel wings suggesting upward progress. Designed for micro-size legibility (32×32pt). Solid white background. Absolutely no text.</p>
+      </div>
+
+      <div class="prompt-card reveal d3">
+        <div class="prompt-label">✦ Prompt 2 — Refine</div>
+        <p class="prompt-text">Keep the original style, remove the yellow stars and hearts, and leave the wings unchanged. Add a mosaic effect around the wings to indicate flapping flight; keep the flapping effect minimal.</p>
+      </div>
+    </div>
+
+    <div class="phase-images reveal-right">
+      <div style="text-align:center;">
+        <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/2.png" alt="Trophy Iteration 1" class="slide-img trophy-md">
+        <p class="img-caption">Iteration 1</p>
+      </div>
+      <div style="text-align:center;">
+        <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/3.png" alt="Trophy Iteration 2" class="slide-img trophy-md">
+        <p class="img-caption">Iteration 2</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-counter">03 / 07</div>
+</section>
+
+
+<!-- ==========================================
+     SLIDE 4 — PHASE 2B: ITERATIONS 3 & 4
+     ========================================== -->
+<section class="slide phase-slide" id="slide-5" data-slide="5">
+
+  <div class="phase-header reveal d1">
+    <div class="badge">🎮 Phase 2B</div>
+    <h2>Diffusion Iteration — Refinement</h2>
+  </div>
+
+  <div class="phase-body">
+
+    <div class="phase-prompts">
+      <div class="prompt-card reveal d2">
+        <div class="prompt-label">✦ Prompt 3 — Add Character</div>
+        <p class="prompt-text">1. Remove the thickened lines at the top of the trophy to make lines uniform; keep everything else.<br>
+        2. Add a cute yellow smiley face star to the top of the trophy — but only show <strong>half</strong> of its face, like a curious baby peeking out.</p>
+      </div>
+
+      <div class="prompt-card reveal d3">
+        <div class="prompt-label">✦ Prompt 4 — Remove Wings</div>
+        <p class="prompt-text">1. Remove the wings but retain the surrounding mosaic effect of wing vibration. Add a small amount of mosaic around the blank area where wings were removed — not too much.<br>
+        2. Remove the yellow heart at the bottom.<br>
+        3. Make the stars show a smiling face, but don't fully reveal the trophy.</p>
+      </div>
+
+      <div class="pill-item reveal d4"
+           style="background:rgba(200,240,216,0.4); border-radius:8px; padding:var(--gap-sm) var(--gap); flex-shrink:0;">
+        <div class="pill-icon" style="background:var(--mint);">✅</div>
+        <span style="color:#2d6a4f;"><strong>Result:</strong> Perfectly respected all negative constraints and achieved the right emotional tone.</span>
+      </div>
+    </div>
+
+    <div class="phase-images reveal-right">
+      <div style="text-align:center;">
+        <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/4.png" alt="Trophy Iteration 3" class="slide-img trophy-md">
+        <p class="img-caption">Iteration 3</p>
+      </div>
+      <div style="text-align:center;">
+        <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/5.png" alt="Trophy Iteration 4" class="slide-img trophy-md">
+        <p class="img-caption">Iteration 4</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-counter">04 / 07</div>
+</section>
+
+
+<!-- ==========================================
+     SLIDE 5 — PHASE 3: THE FINAL POLISH
+     ========================================== -->
+<section class="slide" id="slide-6" data-slide="6">
+
+  <div class="s6-content">
+    <div class="badge reveal d1">🎨 Phase 3</div>
+    <h2 class="reveal d2">The Final Polish</h2>
+    <div class="bullet-list">
+      <div class="pill-item reveal d3">
+        <div class="pill-icon" style="background:var(--pink);">⚠️</div>
+        <span><strong>The Problem:</strong> AI lacked the technical precision required for micro-legible SVG.</span>
+      </div>
+      <div class="pill-item reveal d3">
+        <div class="pill-icon" style="background:var(--pink);">❌</div>
+        <span><strong>Failed Tool:</strong> Python converters (pixels2svg) ruined the crisp aesthetic — melted pixel edges into blurry curves.</span>
+      </div>
+      <div class="pill-item reveal d4">
+        <div class="pill-icon" style="background:var(--mint);">✋</div>
+        <span><strong>Human Touch:</strong> Switched to Adobe Illustrator for manual clean-up.</span>
+      </div>
+      <div class="pill-item reveal d5">
+        <div class="pill-icon" style="background:var(--mint);">💎</div>
+        <span><strong>Enhancement:</strong> Fine-tuned geometry and manually added small hearts to maximise the uplifting tone.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="s6-image reveal-right">
+    <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/pythonL.png" alt="pixels2svg PyPI page — the failed converter"
+         class="slide-img screenshot-img">
+    <p class="img-caption">pixels2svg — the failed Python converter</p>
+  </div>
+
+  <div class="slide-counter">05 / 07</div>
+</section>
+
+
+<!-- ==========================================
+     SLIDE 6 — THE FINAL SVG OUTPUT
+     Dark cosmic background — image is the star
+     ========================================== -->
+<section class="slide" id="slide-7" data-slide="7">
+
+  <!-- Atmospheric glow blobs (match trophy palette) -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <p class="final-eyebrow reveal d1">✦ Final Result</p>
+  <h2 class="final-heading reveal d2">The Final SVG Output</h2>
+
+  <div class="reveal d3" style="display:flex; justify-content:center; position:relative; z-index:1;">
+    <img src="https://raw.githubusercontent.com/funiJackson/web_portfolipo/main/public/finalResult.png"
+         alt="Final output — PNG export and SVG in VSCode side by side"
+         class="slide-img hero-img">
+  </div>
+
+  <p class="reveal d4" style="text-align:center; font-size:var(--small-size);
+     color:rgba(196,181,253,0.45); letter-spacing:0.1em; text-transform:uppercase;
+     position:relative; z-index:1;">PNG export · SVG in VSCode — production-ready</p>
+
+  <div class="slide-counter">06 / 07</div>
+</section>
+
+
+<!-- ==========================================
+     SLIDE 7 — WHAT CAN I BRING  (dark finale)
+     ========================================== -->
+<section class="slide" id="slide-8" data-slide="7">
+
+  <!-- Left panel -->
+  <div class="s8-left">
+    <!-- Decorative glow behind the text -->
+    <div class="s8-blob" style="width:clamp(120px,22vw,280px); height:clamp(120px,22vw,280px);
+         background:rgba(255,203,71,0.1); bottom:-10%; left:-15%;"></div>
+    <div class="s8-blob" style="width:clamp(80px,14vw,180px); height:clamp(80px,14vw,180px);
+         background:rgba(196,181,253,0.12); top:5%; right:10%;"></div>
+
+    <p class="s8-eyebrow reveal d1">🚀 For Idea Junkies</p>
+    <h2 class="s8-title reveal d2">What Can<br>I <span class="gold">Bring?</span></h2>
+    <p class="s8-sub reveal d3">AI-assisted design · Inclusive UX · Creative production</p>
+    <a href="https://calm-baklava-fceb3c.netlify.app/" target="_blank"
+       rel="noopener noreferrer" class="portfolio-link-dark reveal d4">
+      🌐&nbsp; View My Portfolio →
+    </a>
+  </div>
+
+  <!-- Right panel: 2×2 skill cards -->
+  <div class="s8-right">
+    <div class="bring-grid">
+
+      <div class="bring-item reveal d3"
+           style="--accent:#C4B5FD; background:rgba(196,181,253,0.07);">
+        <span class="bring-icon">🎯</span>
+        <strong>Target Audience Expertise</strong>
+        <span>Researched inclusive UI/UX for dyslexic children — simplified educational materials with empathy.</span>
+      </div>
+
+      <div class="bring-item reveal d4"
+           style="--accent:#FFCB47; background:rgba(255,203,71,0.07);">
+        <span class="bring-icon">🤖</span>
+        <strong>AI-Assisted Workflow</strong>
+        <span>Skilled in iterating AI prompts to accelerate creative production rapidly and systematically.</span>
+      </div>
+
+      <div class="bring-item reveal d5"
+           style="--accent:#6ee7b7; background:rgba(110,231,183,0.07);">
+        <span class="bring-icon">🧩</span>
+        <strong>Modular &amp; Systematic Logic</strong>
+        <span>Breaks visual concepts into app-ready components with clean, structured file management.</span>
+      </div>
+
+      <div class="bring-item reveal d6"
+           style="--accent:#f9a8d4; background:rgba(249,168,212,0.07);">
+        <span class="bring-icon">🤝</span>
+        <strong>Collaborative Team Player</strong>
+        <span>Strong communicator for cross-functional teams — remote and open collaboration.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="slide-counter" style="color:rgba(196,181,253,0.25);">07 / 07</div>
+</section>
+
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   Handles: keyboard nav, touch swipe, dot nav,
+   progress bar, and scroll-triggered animations.
+   =========================================== */
+class SlidePresentation {
+  constructor() {
+    this.slides       = Array.from(document.querySelectorAll('.slide'));
+    this.total        = this.slides.length;
+    this.current      = 0;
+    this.progressBar  = document.getElementById('progressBar');
+    this.dotsNav      = document.getElementById('navDots');
+
+    this.init();
+  }
+
+  init() {
+    this.buildDots();
+    this.observeSlides();
+    this.bindKeyboard();
+    this.bindTouch();
+    // Animate the first slide immediately
+    this.slides[0].classList.add('visible');
+    this.updateProgress(0);
+  }
+
+  /* Build one dot per slide */
+  buildDots() {
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      btn.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      btn.addEventListener('click', () => this.goTo(i));
+      this.dotsNav.appendChild(btn);
+    });
+  }
+
+  /* IntersectionObserver fires .visible when slide enters viewport */
+  observeSlides() {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const slide = entry.target;
+          slide.classList.add('visible');
+          const idx = this.slides.indexOf(slide);
+          if (idx !== -1) {
+            this.current = idx;
+            this.updateProgress(idx);
+            this.updateDots(idx);
+            /* Switch dot colour on dark slides (Final SVG + What Can I Bring) */
+            this.dotsNav.classList.toggle('dark-dots', idx >= 5);
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+
+    this.slides.forEach(s => io.observe(s));
+  }
+
+  /* Keyboard: arrows, space, Home, End */
+  bindKeyboard() {
+    document.addEventListener('keydown', e => {
+      if (['ArrowDown', 'ArrowRight', ' '].includes(e.key)) {
+        e.preventDefault();
+        this.goTo(Math.min(this.current + 1, this.total - 1));
+      } else if (['ArrowUp', 'ArrowLeft'].includes(e.key)) {
+        e.preventDefault();
+        this.goTo(Math.max(this.current - 1, 0));
+      } else if (e.key === 'Home') {
+        e.preventDefault(); this.goTo(0);
+      } else if (e.key === 'End') {
+        e.preventDefault(); this.goTo(this.total - 1);
+      }
+    });
+  }
+
+  /* Touch swipe — vertical swipes only */
+  bindTouch() {
+    let startY = 0, startX = 0;
+    document.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      const dy = startY - e.changedTouches[0].clientY;
+      const dx = startX - e.changedTouches[0].clientX;
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 45) {
+        this.goTo(dy > 0
+          ? Math.min(this.current + 1, this.total - 1)
+          : Math.max(this.current - 1, 0));
+      }
+    }, { passive: true });
+  }
+
+  /* Smooth-scroll to target slide */
+  goTo(idx) {
+    if (idx < 0 || idx >= this.total) return;
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* Update purple progress bar width */
+  updateProgress(idx) {
+    this.progressBar.style.width = ((idx + 1) / this.total * 100) + '%';
+  }
+
+  /* Highlight the active dot */
+  updateDots(idx) {
+    this.dotsNav.querySelectorAll('.nav-dot')
+      .forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+</script>
+</body>
+</html>
